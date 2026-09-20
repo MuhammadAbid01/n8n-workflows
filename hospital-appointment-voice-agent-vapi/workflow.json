@@ -1,0 +1,1818 @@
+{
+  "name": "Hospital Appointment Voice Agent - Vapi",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# book_appointment\nReceives a caller-confirmed appointment, saves it in the Appointments sheet, responds to Vapi, and emails hospital staff.",
+        "height": 120,
+        "width": 620,
+        "color": 7
+      },
+      "id": "84f2f2ff-6653-4539-af0f-4cd1c42a7379",
+      "name": "Sticky Note - Book Appointment",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hospital_book_appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "656e35e4-7164-414f-938a-439d81950a64",
+      "name": "Book Appointment Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        128,
+        176
+      ],
+      "typeVersion": 2,
+      "webhookId": "960356dc-8137-471e-bd20-1ac9179c4aab"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "appt-id",
+              "name": "appointment_id",
+              "type": "string",
+              "value": "={{ 'APT-' + $now.toFormat('yyyyLLddHHmmss') + '-' + $execution.id }}"
+            },
+            {
+              "id": "patient-name",
+              "name": "patient_name",
+              "type": "string",
+              "value": "={{ $json.body.patient_name }}"
+            },
+            {
+              "id": "patient-phone",
+              "name": "phone_number",
+              "type": "string",
+              "value": "={{ $json.body.phone_number }}"
+            },
+            {
+              "id": "department",
+              "name": "department",
+              "type": "string",
+              "value": "={{ $json.body.department }}"
+            },
+            {
+              "id": "doctor-name",
+              "name": "doctor_name",
+              "type": "string",
+              "value": "={{ $json.body.doctor_name }}"
+            },
+            {
+              "id": "appointment-type",
+              "name": "appointment_type",
+              "type": "string",
+              "value": "={{ $json.body.appointment_type || 'new_patient' }}"
+            },
+            {
+              "id": "appointment-date",
+              "name": "appointment_date",
+              "type": "string",
+              "value": "={{ $json.body.date }}"
+            },
+            {
+              "id": "appointment-time",
+              "name": "appointment_time",
+              "type": "string",
+              "value": "={{ $json.body.time }}"
+            },
+            {
+              "id": "visit-reason",
+              "name": "reason_for_visit",
+              "type": "string",
+              "value": "={{ $json.body.reason_for_visit || 'Not provided' }}"
+            },
+            {
+              "id": "appointment-status",
+              "name": "status",
+              "type": "string",
+              "value": "confirmed"
+            },
+            {
+              "id": "conversation-id",
+              "name": "conversation_id",
+              "type": "string",
+              "value": "={{ $json.body.conversation_id || $json.body.call_id || \"unknown\" }}"
+            },
+            {
+              "id": "created-at",
+              "name": "created_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "492df75d-1491-492d-90f1-c90d99cf7efd",
+      "name": "Normalize Appointment Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        464,
+        176
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Hospital_Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "phone_number": "={{ $json.phone_number }}",
+            "patient_name": "={{ $json.patient_name }}",
+            "department": "={{ $json.department }}",
+            "doctor_name": "={{ $json.doctor_name }}",
+            "appointment_type": "={{ $json.appointment_type }}",
+            "appointment_date": "={{ $json.appointment_date }}",
+            "appointment_time": "={{ $json.appointment_time }}",
+            "reason_for_visit": "={{ $json.reason_for_visit }}",
+            "status": "={{ $json.status }}",
+            "conversation_id": "={{ $json.conversation_id }}",
+            "created_at": "={{ $json.created_at }}"
+          },
+          "matchingColumns": [
+            "appointment_id\tpatient_name\tphone_number\tdepartment\tdoctor_name\tappointment_type\tappointment_date\tappointment_time\treason_for_visit\tstatus\tconversation_id\tcreated_at"
+          ],
+          "schema": [
+            {
+              "id": "appointment_id",
+              "displayName": "appointment_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "patient_name",
+              "displayName": "patient_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "doctor_name",
+              "displayName": "doctor_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_type",
+              "displayName": "appointment_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_date",
+              "displayName": "appointment_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason_for_visit",
+              "displayName": "reason_for_visit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "conversation_id",
+              "displayName": "conversation_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "72b1fa69-111a-4f26-9ab2-a60198c4b7a0",
+      "name": "Log Appointment to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        672,
+        176
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "booking-message",
+              "name": "message",
+              "type": "string",
+              "value": "=Appointment {{ $json.appointment_id }} is confirmed for {{ $json.patient_name }} with {{ $json.doctor_name }} in {{ $json.department }} on {{ $json.appointment_date }} at {{ $json.appointment_time }}."
+            },
+            {
+              "id": "booking-status",
+              "name": "status",
+              "type": "string",
+              "value": "confirmed"
+            },
+            {
+              "id": "booking-id",
+              "name": "appointment_id",
+              "type": "string",
+              "value": "={{ $json.appointment_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dfb05361-bced-41fc-a75a-f17274aed5fb",
+      "name": "Build Appointment Confirmation",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        176
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"status\": $json.status, \"appointment_id\": $json.appointment_id, \"message\": $json.message } }}",
+        "options": {}
+      },
+      "id": "742bc627-04bd-48d9-b228-c0681c4130e4",
+      "name": "Respond to Vapi - Booking",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1120,
+        176
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "# check_appointment_availability\nChecks whether a doctor already has a confirmed appointment at the requested date and time.",
+        "height": 120,
+        "width": 620,
+        "color": 7
+      },
+      "id": "4cbaca6f-8b2d-4085-87d2-14743424fd9a",
+      "name": "Sticky Note - Check Appointment Availability",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hospital_check_availability",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ebd6abb7-a286-4dfd-a4f4-a26e2f97b26b",
+      "name": "Appointment Availability Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        176,
+        800
+      ],
+      "typeVersion": 2,
+      "webhookId": "189b18be-9ff9-497b-a4cd-c01c04d5752a"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Hospital_Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "e91d5b92-ba59-4c38-a66b-a3225b25f5eb",
+      "name": "Read Appointments",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        416,
+        800
+      ],
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Appointment Availability Webhook').first().json.body ?? {};\n\nfunction normalizeDate(value) {\n  const text = String(value ?? '').trim();\n  let match = text.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);\n  if (match) return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;\n  match = text.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/);\n  if (match) return `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;\n  return text;\n}\n\nfunction normalizeTime(value) {\n  const text = String(value ?? '').trim().toUpperCase();\n  const match = text.match(/^(\\d{1,2})(?::(\\d{2}))?\\s*(AM|PM)?$/);\n  if (!match) return text;\n  let hour = Number(match[1]);\n  const minute = Number(match[2] ?? 0);\n  if (match[3] === 'AM' && hour === 12) hour = 0;\n  if (match[3] === 'PM' && hour !== 12) hour += 12;\n  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;\n}\n\nconst doctorName = String(body.doctor_name ?? '').trim();\nconst department = String(body.department ?? '').trim();\nconst requestedDate = normalizeDate(body.date);\nconst requestedTime = normalizeTime(body.time);\n\nif (!doctorName || !department || !requestedDate || !requestedTime) {\n  throw new Error('doctor_name, department, date, and time are required.');\n}\n\nconst rows = $input.all().map((item) => item.json);\nconst conflict = rows.some((row) =>\n  String(row.doctor_name ?? '').trim().toLowerCase() === doctorName.toLowerCase() &&\n  String(row.department ?? '').trim().toLowerCase() === department.toLowerCase() &&\n  normalizeDate(row.appointment_date) === requestedDate &&\n  normalizeTime(row.appointment_time) === requestedTime &&\n  String(row.status ?? 'confirmed').trim().toLowerCase() !== 'cancelled'\n);\n\nreturn [{ json: {\n  available: !conflict,\n  doctor_name: doctorName,\n  department,\n  date: requestedDate,\n  time: requestedTime,\n} }];"
+      },
+      "id": "c9a0a2a3-4c09-48cf-885d-dceec7594731",
+      "name": "Check Doctor Slot",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        656,
+        800
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-avail-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.available }}",
+              "rightValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0bbc9eb9-f28f-478f-ae87-7240e34a5753",
+      "name": "Appointment Slot Available",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        896,
+        800
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "available-message",
+              "name": "message",
+              "type": "string",
+              "value": "=Yes, {{ $json.doctor_name }} is available in {{ $json.department }} on {{ $json.date }} at {{ $json.time }}."
+            },
+            {
+              "id": "available-status",
+              "name": "available",
+              "type": "boolean",
+              "value": "={{ true }}"
+            },
+            {
+              "id": "available-doctor",
+              "name": "doctor_name",
+              "type": "string",
+              "value": "={{ $json.doctor_name }}"
+            },
+            {
+              "id": "available-dept",
+              "name": "department",
+              "type": "string",
+              "value": "={{ $json.department }}"
+            },
+            {
+              "id": "available-date",
+              "name": "date",
+              "type": "string",
+              "value": "={{ $json.date }}"
+            },
+            {
+              "id": "available-time",
+              "name": "time",
+              "type": "string",
+              "value": "={{ $json.time }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "be7f4ac0-9953-4a32-98d7-8fa28a72785f",
+      "name": "Message - Available",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1136,
+        704
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "unavailable-message",
+              "name": "message",
+              "type": "string",
+              "value": "=I’m sorry, {{ $json.doctor_name }} is not available on {{ $json.date }} at {{ $json.time }}. Please ask for another time."
+            },
+            {
+              "id": "unavailable-status",
+              "name": "available",
+              "type": "boolean",
+              "value": "={{ false }}"
+            },
+            {
+              "id": "unavailable-doctor",
+              "name": "doctor_name",
+              "type": "string",
+              "value": "={{ $json.doctor_name }}"
+            },
+            {
+              "id": "unavailable-dept",
+              "name": "department",
+              "type": "string",
+              "value": "={{ $json.department }}"
+            },
+            {
+              "id": "unavailable-date",
+              "name": "date",
+              "type": "string",
+              "value": "={{ $json.date }}"
+            },
+            {
+              "id": "unavailable-time",
+              "name": "time",
+              "type": "string",
+              "value": "={{ $json.time }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8e9d1de9-2d68-4494-8d7e-cd9b59c99c4f",
+      "name": "Message - Not Available",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1136,
+        912
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"available\": $json.available, \"doctor_name\": $json.doctor_name, \"department\": $json.department, \"date\": $json.date, \"time\": $json.time, \"message\": $json.message } }}",
+        "options": {}
+      },
+      "id": "841899c1-74ad-4c5d-a0f4-bdbac59ca095",
+      "name": "Respond to Vapi - Availability",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1376,
+        800
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "# manage_appointment\nFinds an appointment by appointment ID and patient phone number, then cancels or reschedules it after caller confirmation.",
+        "height": 120,
+        "width": 660,
+        "color": 7
+      },
+      "id": "d059be1e-ae46-411c-9cd7-d8bba05637d1",
+      "name": "Sticky Note - Manage Appointment",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        368
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hospital_manage_appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ede178e6-38fe-4aab-815d-6dc7ba8c7ca8",
+      "name": "Manage Appointment Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1776,
+        576
+      ],
+      "typeVersion": 2,
+      "webhookId": "a3aee433-a36a-4c26-a378-d303f6e50985"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Hospital_Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "6c8f8412-9d7d-4b83-ab0c-8afb3d3296a8",
+      "name": "Read Appointments for Lookup",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2160,
+        576
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Manage Appointment Webhook').first().json.body ?? {};\n\nfunction normalizePhone(value) {\n  const digits = String(value ?? '').replace(/\\D/g, '');\n  return digits.length > 10 ? digits.slice(-10) : digits;\n}\n\nconst appointmentId = String(body.appointment_id ?? '').trim().toUpperCase();\nconst phone = normalizePhone(body.phone_number);\n\nif (!appointmentId || !phone) {\n  return [{ json: { found: false, error: 'appointment_id or phone_number is missing' } }];\n}\n\nconst match = $input.all().find(({ json }) =>\n  String(json.appointment_id ?? '').trim().toUpperCase() === appointmentId &&\n  normalizePhone(json.phone_number) === phone &&\n  String(json.status ?? '').trim().toLowerCase() !== 'cancelled'\n);\n\nif (!match) return [{ json: { found: false } }];\nreturn [{ json: { ...match.json, found: true, row_number: match.json.row_number } }];"
+      },
+      "id": "9aca2942-f059-4e69-bd29-b3a2aab371e0",
+      "name": "Find Matching Appointment",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2400,
+        576
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-found",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1bdc02f6-57f8-4d8e-8777-e9cf532dd650",
+      "name": "Appointment Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2640,
+        576
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-action-cancel",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Manage Appointment Webhook').first().json.body.action }}",
+              "rightValue": "cancel"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7bd363e6-e93a-4fd7-8601-939e24f1682e",
+      "name": "Is Cancel Action",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2880,
+        480
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Hospital_Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "appointment_id": "={{ $json.appointment_id }}",
+            "status": "cancelled"
+          },
+          "matchingColumns": [
+            "appointment_id"
+          ],
+          "schema": [
+            {
+              "id": "appointment_id",
+              "displayName": "appointment_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "patient_name",
+              "displayName": "patient_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "doctor_name",
+              "displayName": "doctor_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_type",
+              "displayName": "appointment_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_date",
+              "displayName": "appointment_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "appointment_time",
+              "displayName": "appointment_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reason_for_visit",
+              "displayName": "reason_for_visit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "conversation_id",
+              "displayName": "conversation_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "36b18430-2854-4c00-8101-89247dfca3ae",
+      "name": "Mark Appointment Cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3120,
+        400
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Hospital_Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments"
+        },
+        "columns": {
+          "value": {
+            "appointment_date": "={{ $json.appointment_date }}",
+            "appointment_time": "={{ $json.appointment_time }}",
+            "doctor_name": "={{ $json.doctor_name }}",
+            "department": "={{ $json.department }}",
+            "status": "={{ $json.status }}",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "schema": [
+            {
+              "id": "appointment_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "appointment_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "appointment_time",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "appointment_time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "doctor_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "doctor_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "department",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b57c9444-9867-40c5-a368-bcd01cbbccac",
+      "name": "Update Appointment Details",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3296,
+        576
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "not-found-message",
+              "name": "message",
+              "type": "string",
+              "value": "=I could not find an active appointment matching that appointment ID and phone number."
+            },
+            {
+              "id": "not-found-status",
+              "name": "status",
+              "type": "string",
+              "value": "not_found"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ebf7485b-ef41-463d-a1c2-bf793877348f",
+      "name": "Message - Not Found",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2880,
+        720
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cancelled-message",
+              "name": "message",
+              "type": "string",
+              "value": "=Appointment {{ $('Find Matching Appointment').first().json.appointment_id }} on {{ $('Find Matching Appointment').first().json.appointment_date }} at {{ $('Find Matching Appointment').first().json.appointment_time }} has been cancelled."
+            },
+            {
+              "id": "cancelled-status",
+              "name": "status",
+              "type": "string",
+              "value": "cancelled"
+            },
+            {
+              "id": "cancelled-id",
+              "name": "appointment_id",
+              "type": "string",
+              "value": "={{ $('Find Matching Appointment').first().json.appointment_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52d325ca-d588-4cc2-abcc-d408ff11f8fe",
+      "name": "Message - Cancelled",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3360,
+        400
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rescheduled-message",
+              "name": "message",
+              "type": "string",
+              "value": "=Appointment {{ $json.appointment_id || \"\" }} has been rescheduled successfully."
+            },
+            {
+              "id": "rescheduled-status",
+              "name": "status",
+              "type": "string",
+              "value": "rescheduled"
+            },
+            {
+              "id": "rescheduled-id",
+              "name": "appointment_id",
+              "type": "string",
+              "value": "={{ $('Find Matching Appointment').first().json.appointment_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c97e881f-338f-43bf-8fcf-51343be29568",
+      "name": "Message - Modified",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3520,
+        576
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": $json.status !== \"not_found\", \"status\": $json.status, \"appointment_id\": $json.appointment_id || null, \"message\": $json.message } }}",
+        "options": {}
+      },
+      "id": "30913a84-5046-4708-835e-df6d40fc4f8c",
+      "name": "Respond to Vapi - Manage",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        4144,
+        720
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Hospital staff email to receive notifications__>",
+        "subject": "=New appointment: {{ $json.patient_name }} - {{ $json.appointment_date }} {{ $json.appointment_time }}",
+        "message": "=New appointment booked through the Vapi hospital voice assistant.<br><br><strong>Appointment ID:</strong> {{ $json.appointment_id }}<br><strong>Patient:</strong> {{ $json.patient_name }}<br><strong>Phone:</strong> {{ $json.phone_number }}<br><strong>Department:</strong> {{ $json.department }}<br><strong>Doctor:</strong> {{ $json.doctor_name }}<br><strong>Date:</strong> {{ $json.appointment_date }}<br><strong>Time:</strong> {{ $json.appointment_time }}<br><strong>Type:</strong> {{ $json.appointment_type }}<br><strong>Reason:</strong> {{ $json.reason_for_visit }}",
+        "options": {}
+      },
+      "id": "605e888e-d327-4781-9117-6ca7a43f675b",
+      "name": "Send Staff New Appointment Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        880,
+        384
+      ],
+      "webhookId": "420268e0-c06d-4fd3-af54-db7a9bc9d6f2",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Hospital staff email to receive notifications__>",
+        "subject": "=Appointment cancelled: {{ $('Find Matching Appointment').first().json.appointment_id }}",
+        "message": "=Appointment {{ $('Find Matching Appointment').first().json.appointment_id }} for {{ $('Find Matching Appointment').first().json.patient_name }} has been cancelled.",
+        "options": {}
+      },
+      "id": "b669a117-aa85-4db2-b00d-fd0919befba0",
+      "name": "Send Staff Cancellation Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3360,
+        96
+      ],
+      "webhookId": "c805aa3c-4a94-46bf-b704-66c03eebb717",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Hospital staff email to receive notifications__>",
+        "subject": "=Appointment rescheduled: {{ $('Find Matching Appointment').first().json.appointment_id }}",
+        "message": "=Appointment {{ $('Find Matching Appointment').first().json.appointment_id }} for {{ $('Find Matching Appointment').first().json.patient_name }} was rescheduled to {{ $json.appointment_date }} at {{ $json.appointment_time }} with {{ $json.doctor_name }}.",
+        "options": {}
+      },
+      "id": "1114e767-bf3b-4c81-87f8-13d4a3c7e822",
+      "name": "Send Staff Reschedule Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3376,
+        864
+      ],
+      "webhookId": "f6767168-d29a-425d-ae18-56f5b6198bbe",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "content": "# request_human_callback\nLogs a callback request and emails hospital staff. This is not a live call transfer.",
+        "height": 120,
+        "width": 660,
+        "color": 7
+      },
+      "id": "4b96b091-dd0c-47df-aee3-0e1eed02c1f7",
+      "name": "Sticky Note - Staff Callback",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        928
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hospital_request_callback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fa4087ef-04a5-412d-bc78-6c268e5a1eaf",
+      "name": "Callback Request Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1920,
+        1136
+      ],
+      "typeVersion": 2,
+      "webhookId": "3f8912cb-c3d1-4699-9246-13ec9d8f5d8d"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "callback-name",
+              "name": "patient_name",
+              "type": "string",
+              "value": "={{ $json.body.patient_name }}"
+            },
+            {
+              "id": "callback-phone",
+              "name": "phone_number",
+              "type": "string",
+              "value": "={{ $json.body.phone_number }}"
+            },
+            {
+              "id": "callback-reason",
+              "name": "reason",
+              "type": "string",
+              "value": "={{ $json.body.reason }}"
+            },
+            {
+              "id": "callback-call-id",
+              "name": "conversation_id",
+              "type": "string",
+              "value": "={{ $json.body.conversation_id || $json.body.call_id || \"unknown\" }}"
+            },
+            {
+              "id": "callback-created",
+              "name": "created_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "callback-status",
+              "name": "status",
+              "type": "string",
+              "value": "pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "64ec8b85-8c27-4b3c-8e4d-4c2c4a0bb4d2",
+      "name": "Normalize Callback Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2160,
+        1136
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Hospital_Appointments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Callbacks"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "patient_name": "={{ $json.patient_name }}",
+            "phone_number": "={{ $json.phone_number }}",
+            "reason": "={{ $json.reason }}",
+            "conversation_id": "={{ $json.conversation_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "patient_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "patient_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "phone_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conversation_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "conversation_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "ed155660-045e-4602-98f9-895f73e96cd3",
+      "name": "Log Callback to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2400,
+        1136
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Hospital staff email to receive notifications__>",
+        "subject": "=Hospital callback requested: {{ $json.patient_name }}",
+        "message": "=Please call {{ $json.patient_name }} at {{ $json.phone_number }}.<br><strong>Reason:</strong> {{ $json.reason }}<br><strong>Logged:</strong> {{ $json.created_at }}",
+        "options": {}
+      },
+      "id": "c00ca972-5150-41d0-9a10-5cbae03e8bbd",
+      "name": "Send Staff Callback Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2656,
+        1296
+      ],
+      "webhookId": "487106e5-c0e0-4d58-8284-804a23adfbfc",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "callback-message",
+              "name": "message",
+              "type": "string",
+              "value": "=Thank you, {{ $json.patient_name }}. A callback request has been sent to the hospital staff for {{ $json.phone_number }}."
+            },
+            {
+              "id": "callback-response-status",
+              "name": "status",
+              "type": "string",
+              "value": "callback_requested"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a7d44d8a-bae1-483f-98cd-ad0c975961c5",
+      "name": "Build Callback Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2880,
+        1136
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"status\": $json.status, \"message\": $json.message } }}",
+        "options": {}
+      },
+      "id": "88221df3-3ad6-410a-bb6f-26b3481cbbd9",
+      "name": "Respond to Vapi - Callback",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3120,
+        1136
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('Manage Appointment Webhook').first().json.body ?? {};\nconst original = $input.first().json;\nconst hasValue = (value) => value !== undefined && value !== null && String(value).trim() !== '';\n\nreturn [{ json: {\n  row_number: original.row_number,\n  appointment_date: hasValue(body.new_date) ? body.new_date : original.appointment_date,\n  appointment_time: hasValue(body.new_time) ? body.new_time : original.appointment_time,\n  doctor_name: hasValue(body.new_doctor_name) ? body.new_doctor_name : original.doctor_name,\n  department: hasValue(body.new_department) ? body.new_department : original.department,\n  status: 'confirmed',\n} }];"
+      },
+      "id": "15b2597b-c94c-40a6-b203-88bd9f5ea6d7",
+      "name": "Merge Reschedule Fields",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3120,
+        576
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "# 🏥 Hospital Appointment Voice Agent (Vapi + n8n)\n\nBackend for a Vapi voice agent that lets callers check doctor availability, book, reschedule, cancel, or request a human callback — all over the phone.\n\n### How it works\n1. Vapi calls one of 4 tool webhooks during the live call\n2. `check_appointment_availability` → checks the doctor's slot in Google Sheets\n3. `book_appointment` → saves the confirmed booking and emails staff\n4. `manage_appointment` → finds a booking by ID + phone, then cancels or reschedules it\n5. `request_human_callback` → logs the request and emails staff for follow-up\n\n### Setup steps\n1. Add a **Google Sheets** credential and point every Sheets node at your own sheet (tabs: `Appointments`, `Callbacks`)\n2. Add a **Gmail** credential and set the staff notification email on the 4 \"Send Staff...\" nodes\n3. Activate the workflow, copy each webhook's Production URL into the matching Vapi tool\n4. `hospital_check_availability`, `hospital_book_appointment`, `hospital_manage_appointment`, `hospital_request_callback`",
+        "height": 476,
+        "width": 720
+      },
+      "id": "71a99e68-de8e-447d-b85b-726b51c71a08",
+      "name": "Sticky Note - System Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body ?? {};\nconst required = ['patient_name', 'phone_number', 'department', 'doctor_name', 'date', 'time'];\nconst missing = required.filter((field) => body[field] === undefined || body[field] === null || String(body[field]).trim() === '');\nif (missing.length) throw new Error(`Missing required booking fields: ${missing.join(', ')}`);\nif (body.caller_confirmed !== true) throw new Error('Booking requires explicit caller confirmation.');\nreturn $input.all();"
+      },
+      "id": "d7993354-c0ad-4aab-b3e2-d71e94d7ed9a",
+      "name": "Validate Booking Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        288,
+        176
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body ?? {};\nif (!['cancel', 'reschedule'].includes(String(body.action ?? '').toLowerCase())) throw new Error('action must be cancel or reschedule.');\nif (!body.appointment_id || !body.phone_number) throw new Error('appointment_id and phone_number are required.');\nif (body.caller_confirmed !== true) throw new Error('Appointment changes require explicit caller confirmation.');\nif (String(body.action).toLowerCase() === 'reschedule' && (!body.new_date || !body.new_time)) throw new Error('new_date and new_time are required for rescheduling.');\nreturn $input.all();"
+      },
+      "id": "544452c9-fed9-4616-bf99-7eb3792617a5",
+      "name": "Validate Manage Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1984,
+        576
+      ],
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Book Appointment Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Booking Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Appointment Data": {
+      "main": [
+        [
+          {
+            "node": "Log Appointment to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Appointment to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Appointment Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Staff New Appointment Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Appointment Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Availability Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read Appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Appointments": {
+      "main": [
+        [
+          {
+            "node": "Check Doctor Slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Doctor Slot": {
+      "main": [
+        [
+          {
+            "node": "Appointment Slot Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Slot Available": {
+      "main": [
+        [
+          {
+            "node": "Message - Available",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message - Not Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message - Available": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message - Not Available": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manage Appointment Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Manage Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Appointments for Lookup": {
+      "main": [
+        [
+          {
+            "node": "Find Matching Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Matching Appointment": {
+      "main": [
+        [
+          {
+            "node": "Appointment Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Found": {
+      "main": [
+        [
+          {
+            "node": "Is Cancel Action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message - Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Cancel Action": {
+      "main": [
+        [
+          {
+            "node": "Mark Appointment Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Reschedule Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Appointment Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Message - Cancelled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Staff Cancellation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Appointment Details": {
+      "main": [
+        [
+          {
+            "node": "Message - Modified",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Staff Reschedule Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message - Not Found": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Manage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message - Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Manage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message - Modified": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Manage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Callback Request Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Callback Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Callback Data": {
+      "main": [
+        [
+          {
+            "node": "Log Callback to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Callback to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Staff Callback Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Callback Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Callback Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi - Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Reschedule Fields": {
+      "main": [
+        [
+          {
+            "node": "Update Appointment Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Booking Request": {
+      "main": [
+        [
+          {
+            "node": "Normalize Appointment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Manage Request": {
+      "main": [
+        [
+          {
+            "node": "Read Appointments for Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "9118d230-3f6c-4221-986a-38826510caf3",
+  "meta": {
+    "instanceId": "453e5935772e7db67484aa1235c207eab71eb591c44520f33d49de34bc305077"
+  },
+  "nodeGroups": [],
+  "id": "W0MlErwy6U0Es1ts",
+  "tags": []
+}

@@ -2,7 +2,7 @@
 
 This repository contains n8n workflows that I have designed and built for practical AI automation and business use cases. Each project combines n8n with external platforms and APIs to create a complete, reusable automation system.
 
-The repository currently includes the following two workflows:
+The repository currently includes six workflows.
 
 ## 1. AI Restaurant Voice Assistant
 
@@ -12,7 +12,7 @@ The workflow uses Google Sheets to store operational records and Gmail to notify
 
 **Technologies:** n8n, ElevenLabs Conversational AI, Google Sheets, Gmail, webhooks, and JavaScript.
 
-[View the workflow](./restaurant-voice-assistant/)
+[View the workflow](./restaurant-voice-assistant%20-%20ElevenLabs/)
 
 ## 2. Website RAG Customer Support Chatbot
 
@@ -23,6 +23,42 @@ A Gemini-powered support agent searches the Pinecone knowledge base before answe
 **Technologies:** n8n, Firecrawl, Google Gemini, Pinecone, RAG, vector embeddings, and JavaScript.
 
 [View the workflow](./website-rag-customer-support/)
+
+## 3. Real Estate Voice Agent
+
+An automation backend for a Retell Conversational AI real estate agent. It handles property searches by location, type, bedrooms, and budget; new listing submissions pending office review; property viewing bookings; detailed property lookups; and human escalation requests.
+
+The workflow uses Google Sheets to store listings, viewings, and escalations, and Gmail to notify estate agents. Five webhook endpoints allow the Retell agent to perform these actions during live calls.
+
+**Technologies:** n8n, Retell Conversational AI, Google Sheets, Gmail, webhooks, and JavaScript.
+
+[View the workflow](./real-estate-voice-agent-retell/)
+
+## 4. Hospital Appointment Voice Agent
+
+An automation backend for a Vapi Conversational AI hospital agent. It handles new appointment bookings with auto-generated IDs, doctor and slot availability checks, appointment modifications and cancellations, and human callback requests.
+
+The workflow uses Google Sheets to store appointment records and Gmail to send confirmation and notification emails to patients and staff. Four webhook endpoints allow the Vapi agent to perform these actions during live calls.
+
+**Technologies:** n8n, Vapi Conversational AI, Google Sheets, Gmail, webhooks, and JavaScript.
+
+[View the workflow](./hospital-appointment-voice-agent-vapi/)
+
+## 5. AI Business Inbox Manager
+
+An email triage workflow that watches a Gmail inbox, uses Groq to classify each incoming message by department, type, and priority, applies a structured set of Gmail labels, sends a Telegram alert for urgent emails, and creates a draft reply when a response is warranted. No email is ever sent automatically.
+
+**Technologies:** n8n, Gmail, Groq, Telegram, OAuth2, and JavaScript.
+
+[View the workflow](./ai-business-inbox-manager/)
+
+## 6. AI Lead Qualifier & Outreach
+
+A full-funnel lead management workflow that receives inbound leads via a webhook, scores them 1–10 using OpenAI, saves the result to a Google Sheets CRM, sends a category-appropriate outreach email, and posts a Slack notification for hot leads. A daily follow-up job re-contacts hot and warm leads that have not yet replied.
+
+**Technologies:** n8n, OpenAI, Google Sheets, Gmail, Slack, webhooks, and JavaScript.
+
+[View the workflow](./ai-lead-qualifier-outreach/)
 
 ## Repository structure
 
