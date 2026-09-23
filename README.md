@@ -2,7 +2,7 @@
 
 This repository contains n8n workflows that I have designed and built for practical AI automation and business use cases. Each project combines n8n with external platforms and APIs to create a complete, reusable automation system.
 
-The repository currently includes six workflows.
+The repository currently includes nine workflows.
 
 ## 1. AI Restaurant Voice Assistant
 
@@ -59,6 +59,30 @@ A full-funnel lead management workflow that receives inbound leads via a webhook
 **Technologies:** n8n, OpenAI, Google Sheets, Gmail, Slack, webhooks, and JavaScript.
 
 [View the workflow](./ai-lead-qualifier-outreach/)
+
+## 7. AI Invoice Processing with Gemini, Slack Approvals & Google Sheets
+
+An n8n workflow that watches a Gmail inbox and a Google Drive folder for incoming invoices and receipts, uses Google Gemini to extract structured data from PDFs and images, validates totals, deduplicates by invoice number, classifies the expense category, routes invoices for human approval in Slack when they exceed $500, and logs every result to a Google Sheets ledger. An error trigger posts a Slack alert if the workflow itself fails.
+
+**Technologies:** n8n, Google Gemini, Google Sheets, Google Drive, Gmail, Slack, and JavaScript.
+
+[View the workflow](./ai-invoice%20processing-gemini-slack-approvals-sheets/)
+
+## 8. AI Invoice Reminder & Payment Tracker
+
+An n8n workflow that runs a daily check on a Google Sheets invoice ledger, uses Groq to generate personalised payment reminder emails, sends them via SMTP, and logs every action to an activity log tab. A second branch accepts incoming payment notifications via a webhook and marks invoices as paid in the sheet. A daily HTML summary report is emailed to the finance team.
+
+**Technologies:** n8n, Groq, Google Sheets, SMTP, webhooks, and JavaScript.
+
+[View the workflow](./ai-invoice-reminder-payment-tracker-groq-sheets/)
+
+## 9. Enquiry Capture & Response Automation
+
+An n8n workflow that accepts website contact form submissions via a webhook, normalises field names from any major WordPress form plugin, filters out spam and incomplete submissions, assigns a regional owner by postcode, scores the enquiry by priority, saves the lead to a Google Sheets tracker before any email is attempted, sends the customer a branded acknowledgement with three qualification questions, and notifies the assigned owner by email. The website receives a clean JSON response for every outcome.
+
+**Technologies:** n8n, Google Sheets, Gmail, webhooks, and JavaScript.
+
+[View the workflow](./enquiry-capture-response-automation/)
 
 ## Repository structure
 
