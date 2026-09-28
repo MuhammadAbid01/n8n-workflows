@@ -2,7 +2,7 @@
 
 This repository contains n8n workflows that I have designed and built for practical AI automation and business use cases. Each project combines n8n with external platforms and APIs to create a complete, reusable automation system.
 
-The repository currently includes nine workflows.
+The repository currently includes twelve workflows.
 
 ## 1. AI Restaurant Voice Assistant
 
@@ -83,6 +83,30 @@ An n8n workflow that accepts website contact form submissions via a webhook, nor
 **Technologies:** n8n, Google Sheets, Gmail, webhooks, and JavaScript.
 
 [View the workflow](./enquiry-capture-response-automation/)
+
+## 10. AI Cold Outreach with Telegram Approval
+
+An n8n workflow that monitors a Google Sheets prospect list, uses Groq to write a personalised cold email for each new row, saves a Gmail draft or sends immediately based on a per-row flag, and polls the inbox every two minutes for replies. Groq classifies each reply and drafts a response; a Telegram notification delivers the draft with an approve button so you can send it without leaving Telegram.
+
+**Technologies:** n8n, Groq, Google Sheets, Gmail, Telegram, and JavaScript.
+
+[View the workflow](./ai-cold-outreach-automation/)
+
+## 11. Local Business Lead Machine — AI Lead Generation & Outreach
+
+An n8n workflow that scrapes Google Maps via Apify for local businesses, audits each website with HTTP requests and Firecrawl, scores every lead 0–100 using a rule-based engine (no AI), and uses OpenAI to write personalised pitches for hot and warm leads. All leads are saved to a Google Sheets CRM with a run summary posted to Slack. A daily weekday job creates Gmail outreach drafts for approved leads up to a configurable cap.
+
+**Technologies:** n8n, Apify, Firecrawl, OpenAI, Google Sheets, Gmail, Slack, and JavaScript.
+
+[View the workflow](./ai-lead-generation-and-outreach-with-apify-maps/)
+
+## 12. AI LinkedIn Content Automation
+
+An n8n workflow that runs daily, picks a pending topic from a Google Sheets queue, researches it with Firecrawl, generates two distinct LinkedIn and X post drafts with Groq, creates an AI preview image for each via Cloudflare Workers AI, and sends both options to Telegram. Clicking an approve button publishes the chosen post with its image directly to LinkedIn and forwards the X copy to Telegram for manual posting.
+
+**Technologies:** n8n, Firecrawl, Groq, Cloudflare Workers AI, Google Sheets, Telegram, LinkedIn, and JavaScript.
+
+[View the workflow](./ai_linkedin_content_automation.json/)
 
 ## Repository structure
 
