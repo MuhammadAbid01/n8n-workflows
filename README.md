@@ -2,7 +2,7 @@
 
 This repository contains n8n workflows that I have designed and built for practical AI automation and business use cases. Each project combines n8n with external platforms and APIs to create a complete, reusable automation system.
 
-The repository currently includes twelve workflows.
+The repository currently includes fifteen workflows.
 
 ## 1. AI Restaurant Voice Assistant
 
@@ -107,6 +107,30 @@ An n8n workflow that runs daily, picks a pending topic from a Google Sheets queu
 **Technologies:** n8n, Firecrawl, Groq, Cloudflare Workers AI, Google Sheets, Telegram, LinkedIn, and JavaScript.
 
 [View the workflow](./ai_linkedin_content_automation.json/)
+
+## 13. Dental Appointment Voice Agent
+
+An n8n backend for a Vapi dental receptionist that checks dentist availability, books appointments, handles cancellations and rescheduling, and records clinic callback requests. Google Sheets stores appointments and callbacks, while Gmail alerts clinic staff.
+
+**Technologies:** n8n, Vapi Conversational AI, Google Sheets, Gmail, webhooks, and JavaScript.
+
+[View the workflow](./dental-appointment-voice-agent-vapi/)
+
+## 14. Home Services Booking Voice Agent
+
+An n8n backend for a Vapi home-services receptionist that checks booking availability, schedules service visits, cancels or reschedules bookings, and records callback requests. Google Sheets stores operational records and Gmail notifies staff.
+
+**Technologies:** n8n, Vapi Conversational AI, Google Sheets, Gmail, webhooks, and JavaScript.
+
+[View the workflow](./home-services-booking-voice-agent-vapi/)
+
+## 15. Travel Agency Voice Agent
+
+An n8n backend for a Vapi travel agent that searches packages, creates bookings, updates or cancels existing bookings, and captures consultant callback requests. Google Sheets stores packages, bookings, leads, and callbacks, while Gmail sends confirmations and alerts.
+
+**Technologies:** n8n, Vapi Conversational AI, Google Sheets, Gmail, webhooks, and JavaScript.
+
+[View the workflow](./travel-agency-voice-agent-vapi/)
 
 ## Repository structure
 
